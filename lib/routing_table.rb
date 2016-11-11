@@ -23,4 +23,25 @@ class RoutingTable
     end
     nil
   end
+
+  def listDB()
+    return @db,MAX_NETMASK_LENGTH
+  end
+
+
+  def delete(options)
+    netmask_length = options.fetch(:netmask_length)
+    prefix = IPv4Address.new(options.fetch(:destination)).mask(netmask_length)
+    @db[netmask_length].delete(prefix.to_i)
+  end
+
+  def listInt()
+    temp = Array.new()
+    Interface.all.each do |each|
+      temp << {:port_number => each.port_number.to_s, :mac_address => each.mac_address.to_s, :ip_address => each.ip_address.value.to_s, :netmask_length => each.netmask_length.to_s}
+    end
+    return temp
+  end
+
+
 end

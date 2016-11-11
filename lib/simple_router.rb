@@ -89,6 +89,38 @@ class SimpleRouter < Trema::Controller
   end
   # rubocop:enable MethodLength
 
+ 
+  def listRoute()
+    temp ="\n" + "----------------------------------\n" + "destination/netmask \t next_hop\n" + "----------------------------------\n"
+    @route,@len = @routing_table.listDB()
+    @len.downto(0).each do |each|
+      @route[each].each do |key,next_hop|
+        temp += IPv4Address.new(key).to_s +  "/" + each.to_s + "\t " + next_hop.to_s +  "\n"
+      end
+    end
+    return temp
+  end
+
+  def addEntry(dest,netmask_len,next_hop)
+    options = {:destination => dest, :netmask_length => netmask_len.to_i, :next_hop => next_hop}
+    @routing_table.add(options)
+  end
+
+  def deleteEntry(dest,netmask_len)
+    options = {:destination => dest, :netmask_length => netmask_len.to_i}
+    @routing_table.delete(options)
+  end
+
+  def listInterface()
+    temp ="\n" + "----------------------------------\n" + "port \t mac_address \t ip_address/netmask\n" + "----------------------------------\n"
+    interface = @routing_table.listInt()
+    interface.each do |each|
+      temp += each[:port_number] +  "\t" + each[:mac_address] + "\t" + each[:ip_address] + "/" + each[:netmask_length] + "\n"
+    end
+    return temp
+  end
+
+
   private
 
   def sent_to_router?(packet_in)
